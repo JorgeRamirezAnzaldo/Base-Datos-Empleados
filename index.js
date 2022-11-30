@@ -1,10 +1,12 @@
 //Include inquirer package
 const inq = require("inquirer");
-const fun = require("./lib/functions.js")
+const fun = require("./lib/functions.js");
+const cTable = require("console.table");
 const DepartmentOptions = [];
 const RoleOptions = [];
 const EmployeeOptions = [];
 let password;
+const functions = new fun();
 
 //Define question for database access
 const passwordDB = [
@@ -119,12 +121,21 @@ function init(){
     });
 }
 
+
 function displayChoices(){
     inq.prompt(options).then((answers) => {
         if (answers.Option == "View All Employees"){
-            const functions = new fun();
-            functions.getEmployees(password);
-            displayChoices();
+            let employees = [];
+            const Promise1 = new Promise ((resolve) => {
+                employees = functions.getEmployees(password);
+                if (employees){
+                    resolve(employees);
+                }
+            });
+            Promise1.then((value) => {
+                console.table(value);
+                displayChoices();
+            });
         } else if (answers.Option == "Add Employee"){
             //getRoles(password);
             //getEmployees(password);
