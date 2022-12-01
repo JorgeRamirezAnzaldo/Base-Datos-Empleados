@@ -2,9 +2,9 @@
 const inq = require("inquirer");
 const fun = require("./lib/functions.js");
 const cTable = require("console.table");
-const DepartmentOptions = [];
-const RoleOptions = [];
-const EmployeeOptions = [];
+let DepartmentOptions = [];
+let RoleOptions = [];
+let EmployeeOptions = [];
 let password;
 const functions = new fun();
 
@@ -12,7 +12,7 @@ const functions = new fun();
 const passwordDB = [
     {
         //Ask for password of the database
-        type: "input",
+        type: "password",
         name: "Password",
         message: "Which is your password for Database access?",
     },
@@ -109,7 +109,7 @@ const options = [
         type: "list",
         name: "Option",
         message: "What would you like to do?",
-        choices: ["View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department"], 
+        choices: ["View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Exit"], 
     }
 
 ];
@@ -151,8 +151,17 @@ function displayChoices(){
                 displayChoices();
             })
         } else if (answers.Option == "View All Roles"){
-            //getRoles(password);
-            displayChoices();
+            let roles = [];
+            const Promise4 = new Promise ((resolve) => {
+                roles = functions.getRoles(password);
+                if (roles){
+                    resolve(roles);
+                }
+            });
+            Promise4.then((value) => {
+                console.table(value);
+                displayChoices();
+            });
         } else if (answers.Option == "Add Role"){
             //getDepartments(password);
             inq.prompt(rolequestions).then((answers) => {
@@ -160,13 +169,33 @@ function displayChoices(){
                 displayChoices();
             });
         } else if (answers.Option == "View All Departments"){
-            //getDepartments(password);
-            displayChoices();
-        } else if (answers.Option == "Add Department"){
-            inq.prompt(departmentquestions).then((answers) => {
-                //addDepartment(password);
+            let departments = [];
+            const Promise6 = new Promise ((resolve) => {
+                departments = functions.getDepartments(password);
+                if (departments){
+                    resolve(departments);
+                }
+            });
+            Promise6.then((value) => {
+                console.table(value);
                 displayChoices();
             });
+        } else if (answers.Option == "Add Department"){
+            inq.prompt(departmentquestions).then((answers) => {
+                let message = "";
+                const Promise8 = new Promise ((resolve) => {
+                message = functions.addDepartment(password, answers.Name);
+                if (message !== ""){
+                    resolve(message);
+                }
+                });
+                Promise8.then((value) => {
+                    console.log(value);
+                    displayChoices();
+                });
+            });
+        } else if (answers.Option == "Exit"){
+            console.log("Goodbye!");
         }
     })
 }
