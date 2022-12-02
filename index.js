@@ -2,9 +2,11 @@
 const inq = require("inquirer");
 const fun = require("./lib/functions.js");
 const cTable = require("console.table");
-let DepartmentOptions = [];
-let RoleOptions = [];
-let EmployeeOptions = [];
+var DepartmentOptions = [];
+var RoleOptions = [];
+var EmployeeOptions = [];
+let roleidresult = "";
+let manageridresult = "";
 let password;
 const functions = new fun();
 
@@ -29,7 +31,7 @@ const departmentquestions = [
 ];
 
 //Define questions to be displayed to create role
-const rolequestions = [
+let rolequestions = [
     {
         //Ask for the name of the role
         type: "input",
@@ -53,7 +55,7 @@ const rolequestions = [
 ];
 
 //Define questions to be displayed to create employee
-const employeequestions = [
+let employeequestions = [
     {
         //Ask for the first name of the employee
         type: "input",
@@ -84,7 +86,7 @@ const employeequestions = [
 ];
 
 //Define questions to update employee role
-const updateemployeequestions = [
+let updateemployeequestions = [
     {
         //Ask for the employee to update
         type: "list",
@@ -121,6 +123,27 @@ function init(){
     });
 }
 
+function createRolesList (RoleTableArray){
+    let RList = [];
+    for (var i = 0; i < RoleTableArray.length; i++){
+        RList.push(RoleTableArray[i].title);
+    }
+    return RList;
+}
+
+function createEmployeesList (EmployeeTableArray){
+    let EList = [];
+    for (var j = 0; j < EmployeeTableArray.length; j++){
+        let fullname = EmployeeTableArray[j].first_name + " " + EmployeeTableArray[j].last_name;
+        EList.push(fullname);
+    }
+    return EList;
+}
+
+function createDepartmentsList (DepartmentTableArray){
+
+}
+
 
 function displayChoices(){
     inq.prompt(options).then((answers) => {
@@ -137,12 +160,66 @@ function displayChoices(){
                 displayChoices();
             });
         } else if (answers.Option == "Add Employee"){
-            //getRoles(password);
-            //getEmployees(password);
-            inq.prompt(employeequestions).then((answers) => {
-                //addEmployee(password);
-                displayChoices();
+            let roles = [];
+            const Promise21 = new Promise ((resolve) => {
+                roles = functions.getRoles(password);
+                if (roles){
+                    resolve(roles);
+                }
             });
+            Promise21.then((value) => {
+                RoleOptions = [];
+                RoleOptions = createRolesList(value);
+                employeequestions[2].choices = RoleOptions;
+                let employees = [];
+                const Promise22 = new Promise ((resolve) => {
+                    employees = functions.getEmployees(password);
+                    if (employees){
+                        resolve(employees);
+                    }
+                });
+                Promise22.then((value) => {
+                    EmployeeOptions = [];
+                    EmployeeOptions = createEmployeesList(value);
+                    employeequestions[3].choices = EmployeeOptions;
+                    inq.prompt(employeequestions).then((answers) => {
+                        let roleid = "";
+                        const Promise23 = new Promise ((resolve) => {
+                            roleid = functions.getRoleId(password, answers.Role);
+                            if (roleid !== ""){
+                                resolve(roleid);
+                            }
+                        });
+                        Promise23.then((value) => {
+                            console.log(value);
+                            roleidresult = value;
+                            let managerid = "";
+                            const Promise24 = new Promise ((resolve) => {
+                                managerid = functions.getManagerId(password, answers.Manager);
+                                if (managerid !== ""){
+                                    resolve(managerid);
+                                }
+                            });
+                            Promise24.then((value) => {
+                                console.log(value);
+                                manageridresult = value;
+                                let message = "";
+                                const Promise25 = new Promise ((resolve) => {
+                                    message = functions.addEmployee(password, answers.FirstName, answers.LastName, roleidresult, manageridresult);
+                                    if (message !== ""){
+                                        resolve(message);
+                                    }
+                                });
+                                Promise25.then((value) =>{
+                                    console.log(value);
+                                    displayChoices();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+            
         } else if (answers.Option == "Update Employee Role"){
             //getEmployees(password);
             //getRoles(password);
@@ -163,10 +240,30 @@ function displayChoices(){
                 displayChoices();
             });
         } else if (answers.Option == "Add Role"){
-            //getDepartments(password);
-            inq.prompt(rolequestions).then((answers) => {
-                //addRole(password);
-                displayChoices();
+            let departments = [];
+            const Promise51 = new Promise ((resolve) => {
+                departments = functions.getDepartments(password);
+                if (departments){
+                    resolve(departments);
+                }
+            });
+            Promise51.then((value) => {
+                DepartmentOptions = [];
+                DepartmentOptions = createDeparmentsList(value);
+                rolequestions[2].choices = DepartmentOptions;
+                inq.prompt(rolequestions).then((answers) => {
+                    const Promise52 = new Promise ((resolve) => {
+                        let message = "";
+                        message = functions.addRole(password, answers.title, answers.salary, department_id);
+                        if (message !== ""){
+                            resolve(message);
+                        };
+                    });
+                    Promise52.then((value) =>{
+                        console.log(value);
+                        displayChoices();
+                    });
+                });
             });
         } else if (answers.Option == "View All Departments"){
             let departments = [];
@@ -183,13 +280,13 @@ function displayChoices(){
         } else if (answers.Option == "Add Department"){
             inq.prompt(departmentquestions).then((answers) => {
                 let message = "";
-                const Promise8 = new Promise ((resolve) => {
+                const Promise7 = new Promise ((resolve) => {
                 message = functions.addDepartment(password, answers.Name);
                 if (message !== ""){
                     resolve(message);
                 }
                 });
-                Promise8.then((value) => {
+                Promise7.then((value) => {
                     console.log(value);
                     displayChoices();
                 });
