@@ -7,6 +7,7 @@ var RoleOptions = [];
 var EmployeeOptions = [];
 let roleidresult = "";
 let manageridresult = "";
+let departmentidresult = "";
 let password;
 const functions = new fun();
 
@@ -141,7 +142,11 @@ function createEmployeesList (EmployeeTableArray){
 }
 
 function createDepartmentsList (DepartmentTableArray){
-
+    let DList = [];
+    for (var k = 0; k < DepartmentTableArray.length; k++){
+        DList.push(DepartmentTableArray[k].name);
+    }
+    return DList;
 }
 
 
@@ -191,7 +196,6 @@ function displayChoices(){
                             }
                         });
                         Promise23.then((value) => {
-                            console.log(value);
                             roleidresult = value;
                             let managerid = "";
                             const Promise24 = new Promise ((resolve) => {
@@ -201,7 +205,6 @@ function displayChoices(){
                                 }
                             });
                             Promise24.then((value) => {
-                                console.log(value);
                                 manageridresult = value;
                                 let message = "";
                                 const Promise25 = new Promise ((resolve) => {
@@ -221,12 +224,53 @@ function displayChoices(){
             });
             
         } else if (answers.Option == "Update Employee Role"){
-            //getEmployees(password);
-            //getRoles(password);
-            inq.prompt(updateemployeequestions).then((answers) => {
-                //updateEmployee(password);
-                displayChoices();
-            })
+            let employees = [];
+            const Promise31 = new Promise ((resolve) => {
+                employees = functions.getEmployees(password);
+                if (employees){
+                    resolve(employees);
+                }
+            });
+            Promise31.then((value) => {
+                EmployeeOptions = [];
+                EmployeeOptions = createEmployeesList(value);
+                updateemployeequestions[0].choices = EmployeeOptions;
+                let roles = [];
+                const Promise32 = new Promise ((resolve) => {
+                    roles = functions.getRoles(password);
+                    if (roles){
+                        resolve(roles);
+                    }
+                });
+                Promise32.then((value) =>{
+                    RoleOptions = [];
+                    RoleOptions = createRolesList(value);
+                    updateemployeequestions[1].choices = RoleOptions;
+                    inq.prompt(updateemployeequestions).then((answers) => {
+                        let roleid = "";
+                        const Promise33 = new Promise ((resolve) => {
+                            roleid = functions.getRoleId(password, answers.RoleUpdate);
+                            if (roleid !== ""){
+                                resolve(roleid);
+                            }
+                        });
+                        Promise33.then((value) => {
+                            roleidresult = value;
+                            const Promise34 = new Promise ((resolve) => {
+                                let message = "";
+                                message = functions.updateEmployee(password, answers.EmployeeUpdate, roleidresult);
+                                if (message !== ""){
+                                    resolve(message);
+                                }
+                            });
+                            Promise34.then((value) => {
+                                console.log(value);
+                                displayChoices();
+                            });
+                        });
+                    });
+                });
+            });
         } else if (answers.Option == "View All Roles"){
             let roles = [];
             const Promise4 = new Promise ((resolve) => {
@@ -249,19 +293,29 @@ function displayChoices(){
             });
             Promise51.then((value) => {
                 DepartmentOptions = [];
-                DepartmentOptions = createDeparmentsList(value);
+                DepartmentOptions = createDepartmentsList(value);
                 rolequestions[2].choices = DepartmentOptions;
                 inq.prompt(rolequestions).then((answers) => {
+                    let departmentid = "";
                     const Promise52 = new Promise ((resolve) => {
-                        let message = "";
-                        message = functions.addRole(password, answers.title, answers.salary, department_id);
-                        if (message !== ""){
-                            resolve(message);
-                        };
+                        departmentid = functions.getDepartmentId(password, answers.Department);
+                        if (departmentid !== ""){
+                            resolve(departmentid);
+                        }
                     });
-                    Promise52.then((value) =>{
-                        console.log(value);
-                        displayChoices();
+                    Promise52.then((value) => {
+                        departmentidresult = value;
+                        const Promise53 = new Promise ((resolve) => {
+                            let message = "";
+                            message = functions.addRole(password, answers.Role, answers.Salary, departmentidresult);
+                            if (message !== ""){
+                                resolve(message);
+                            };
+                        });
+                        Promise53.then((value) =>{
+                            console.log(value);
+                            displayChoices();
+                        });
                     });
                 });
             });
