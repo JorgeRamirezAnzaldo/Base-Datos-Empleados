@@ -336,6 +336,7 @@ function displayChoices(){
                 });
             });
         } else if (answers.Option == "Exit"){
+            functions.connectend();
             console.log("Goodbye!");
         }
     })
