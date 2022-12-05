@@ -1,25 +1,16 @@
 //Include inquirer package
+require('dotenv').config();
 const inq = require("inquirer");
 const fun = require("./lib/functions.js");
 const cTable = require("console.table");
+
 var DepartmentOptions = [];
 var RoleOptions = [];
 var EmployeeOptions = [];
 let roleidresult = "";
 let manageridresult = "";
 let departmentidresult = "";
-let password;
 const functions = new fun();
-
-//Define question for database access
-const passwordDB = [
-    {
-        //Ask for password of the database
-        type: "password",
-        name: "Password",
-        message: "Which is your password for Database access?",
-    },
-]
 
 //Define questions to be displayed to create department
 const departmentquestions = [
@@ -118,10 +109,8 @@ const options = [
 ];
 
 function init(){
-    inq.prompt(passwordDB).then((answers) => {
-        password = answers.Password;
-        displayChoices();
-    });
+    functions.connect();
+    displayChoices();
 }
 
 function createRolesList (RoleTableArray){
@@ -155,7 +144,7 @@ function displayChoices(){
         if (answers.Option == "View All Employees"){
             let employees = [];
             const Promise1 = new Promise ((resolve) => {
-                employees = functions.getEmployees(password);
+                employees = functions.getEmployees();
                 if (employees){
                     resolve(employees);
                 }
@@ -167,7 +156,7 @@ function displayChoices(){
         } else if (answers.Option == "Add Employee"){
             let roles = [];
             const Promise21 = new Promise ((resolve) => {
-                roles = functions.getRoles(password);
+                roles = functions.getRoles();
                 if (roles){
                     resolve(roles);
                 }
@@ -178,7 +167,7 @@ function displayChoices(){
                 employeequestions[2].choices = RoleOptions;
                 let employees = [];
                 const Promise22 = new Promise ((resolve) => {
-                    employees = functions.getEmployees(password);
+                    employees = functions.getEmployees();
                     if (employees){
                         resolve(employees);
                     }
@@ -186,11 +175,12 @@ function displayChoices(){
                 Promise22.then((value) => {
                     EmployeeOptions = [];
                     EmployeeOptions = createEmployeesList(value);
+                    EmployeeOptions.push("None");
                     employeequestions[3].choices = EmployeeOptions;
                     inq.prompt(employeequestions).then((answers) => {
                         let roleid = "";
                         const Promise23 = new Promise ((resolve) => {
-                            roleid = functions.getRoleId(password, answers.Role);
+                            roleid = functions.getRoleId(answers.Role);
                             if (roleid !== ""){
                                 resolve(roleid);
                             }
@@ -199,7 +189,7 @@ function displayChoices(){
                             roleidresult = value;
                             let managerid = "";
                             const Promise24 = new Promise ((resolve) => {
-                                managerid = functions.getManagerId(password, answers.Manager);
+                                managerid = functions.getManagerId(answers.Manager);
                                 if (managerid !== ""){
                                     resolve(managerid);
                                 }
@@ -208,7 +198,7 @@ function displayChoices(){
                                 manageridresult = value;
                                 let message = "";
                                 const Promise25 = new Promise ((resolve) => {
-                                    message = functions.addEmployee(password, answers.FirstName, answers.LastName, roleidresult, manageridresult);
+                                    message = functions.addEmployee(answers.FirstName, answers.LastName, roleidresult, manageridresult);
                                     if (message !== ""){
                                         resolve(message);
                                     }
@@ -226,7 +216,7 @@ function displayChoices(){
         } else if (answers.Option == "Update Employee Role"){
             let employees = [];
             const Promise31 = new Promise ((resolve) => {
-                employees = functions.getEmployees(password);
+                employees = functions.getEmployees();
                 if (employees){
                     resolve(employees);
                 }
@@ -237,7 +227,7 @@ function displayChoices(){
                 updateemployeequestions[0].choices = EmployeeOptions;
                 let roles = [];
                 const Promise32 = new Promise ((resolve) => {
-                    roles = functions.getRoles(password);
+                    roles = functions.getRoles();
                     if (roles){
                         resolve(roles);
                     }
@@ -249,7 +239,7 @@ function displayChoices(){
                     inq.prompt(updateemployeequestions).then((answers) => {
                         let roleid = "";
                         const Promise33 = new Promise ((resolve) => {
-                            roleid = functions.getRoleId(password, answers.RoleUpdate);
+                            roleid = functions.getRoleId(answers.RoleUpdate);
                             if (roleid !== ""){
                                 resolve(roleid);
                             }
@@ -258,7 +248,7 @@ function displayChoices(){
                             roleidresult = value;
                             const Promise34 = new Promise ((resolve) => {
                                 let message = "";
-                                message = functions.updateEmployee(password, answers.EmployeeUpdate, roleidresult);
+                                message = functions.updateEmployee(answers.EmployeeUpdate, roleidresult);
                                 if (message !== ""){
                                     resolve(message);
                                 }
@@ -274,7 +264,7 @@ function displayChoices(){
         } else if (answers.Option == "View All Roles"){
             let roles = [];
             const Promise4 = new Promise ((resolve) => {
-                roles = functions.getRoles(password);
+                roles = functions.getRoles();
                 if (roles){
                     resolve(roles);
                 }
@@ -286,7 +276,7 @@ function displayChoices(){
         } else if (answers.Option == "Add Role"){
             let departments = [];
             const Promise51 = new Promise ((resolve) => {
-                departments = functions.getDepartments(password);
+                departments = functions.getDepartments();
                 if (departments){
                     resolve(departments);
                 }
@@ -298,7 +288,7 @@ function displayChoices(){
                 inq.prompt(rolequestions).then((answers) => {
                     let departmentid = "";
                     const Promise52 = new Promise ((resolve) => {
-                        departmentid = functions.getDepartmentId(password, answers.Department);
+                        departmentid = functions.getDepartmentId(answers.Department);
                         if (departmentid !== ""){
                             resolve(departmentid);
                         }
@@ -307,7 +297,7 @@ function displayChoices(){
                         departmentidresult = value;
                         const Promise53 = new Promise ((resolve) => {
                             let message = "";
-                            message = functions.addRole(password, answers.Role, answers.Salary, departmentidresult);
+                            message = functions.addRole(answers.Role, answers.Salary, departmentidresult);
                             if (message !== ""){
                                 resolve(message);
                             };
@@ -322,7 +312,7 @@ function displayChoices(){
         } else if (answers.Option == "View All Departments"){
             let departments = [];
             const Promise6 = new Promise ((resolve) => {
-                departments = functions.getDepartments(password);
+                departments = functions.getDepartments();
                 if (departments){
                     resolve(departments);
                 }
@@ -335,7 +325,7 @@ function displayChoices(){
             inq.prompt(departmentquestions).then((answers) => {
                 let message = "";
                 const Promise7 = new Promise ((resolve) => {
-                message = functions.addDepartment(password, answers.Name);
+                message = functions.addDepartment(answers.Name);
                 if (message !== ""){
                     resolve(message);
                 }
