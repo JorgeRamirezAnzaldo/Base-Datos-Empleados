@@ -66,4 +66,4 @@
 
 ## Enlace a video de funcionalidad de la aplicación
 
-* [Link a video de aplicación]()
+* [Link a video de aplicación](https://drive.google.com/file/d/1A4smonfzVVYSx3awb8sNtIqQtBiWuXUh/view?usp=share_link)
