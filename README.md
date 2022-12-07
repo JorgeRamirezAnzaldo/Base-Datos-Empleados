@@ -58,7 +58,7 @@
 * Si seleccionas "Ver todos los empleados", "Ver todos los departamentos" o "Ver todos los roles", se te presentará una tabla formateada con la información extraída de la base de datos. Después se te desplegará el menú de opciones para que continúes con tu proceso.  
   ![Tabla formateada](./images/Tablaformateada1.JPG)
 * Si seleccionas "Agregar un empleado", "Agregar un rol", "Agregar un departamento" o "Actualizar el rol de un empleado", entonces introduce la información que se te solicita y/o selecciona las opciones que correspondan. Cada vez que quieras enviar la información presiona ENTER.    
-  ![Introducir información](./images/Introducirinformacion.JPG)
+  ![Introducir información](./images/Introducir.JPG)  
 * Para las opciones donde se agrega o actualiza información en la base de datos, verás un mensaje de éxito si tu información fue agregada a la base de datos. Después se te desplegará el menú de opciones para que continúes con tu proceso.  
   ![Mensaje éxito](./images/Mensajeexito.JPG)
 * Si deseas terminar tu proceso de gestión de la base de datos, puedes seleccionar la opción de "Salir" del menú de opciones. Al seleccionarla y presionar ENTER, la conexión a la base de datos y el proceso terminarán.  
